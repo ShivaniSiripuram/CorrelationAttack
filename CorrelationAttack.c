@@ -2,25 +2,27 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+
 typedef unsigned long long u64;
 
 static const double p=0.25;
 
-
+double phiInvPn=-4.0;
+double phiInvOneMinusPf=0.00000001 ; //sqrt(len)
 double calT(double N) {     //T = (1 − 2p) + 2(Φ^(−1)(Pn))*√ p(1 − p)N .
     double sp = sqrt((p * (1.0 - p))/N); 
-    return (1.0 - 2.0*p) + 2.0 * (-3.0) * (sp);
+    return (1.0 - 2.0*p) + 2.0 * (phiInvPn) * (sp);
 }
 
 
 int calN(int l) {             //N=Φ−1(1 − Pf) − 2Φ−1(Pn)√p(1 − p)1 − 2p
     float b = sqrt(p * (1 - p));
-    float a = (sqrt(l) - ((2 * (-3)) * b)) / (1 - (2 * p));
+    float a = (phiInvOneMinusPf - ((2 * (phiInvPn)) * b)) / (1 - (2 * p));
     return (ceil(a * a));
 }
 // double calT(int l,int N){
 //     return (sqrt(l)/sqrt(N));
-// }
+// }#include <math.h>
 
 double calC(int * geffeSeq,int* seq,int N){
     float c=0.0;
@@ -34,27 +36,19 @@ double calC(int * geffeSeq,int* seq,int N){
 
 
 /* ---------- primitive polynomials ---------- */
-static const uint64_t poly_deg1[]  = { 0x3 }; 
-static const uint64_t poly_deg2[]  = { 0x7 };
-static const uint64_t poly_deg3[]  = { 0xB, 0xD };
-static const uint64_t poly_deg4[]  = { 0x13, 0x19 };
-static const uint64_t poly_deg5[]  = { 0x25, 0x29, 0x2F };
-static const uint64_t poly_deg6[]  = { 0x43, 0x47, 0x4D, 0x53 };
-static const uint64_t poly_deg7[]  = { 0x89, 0x8F, 0xA1, 0xA7, 0xB1, 0xB7 };
-static const uint64_t poly_deg8[]  = { 0x11D, 0x12B, 0x12D, 0x14D, 0x15F, 0x163 };
-static const uint64_t poly_deg9[]  = { 0x211, 0x247, 0x253, 0x257, 0x283, 0x287, 0x2C9 };
-static const uint64_t poly_deg10[] = {
-    0x409, 0x40F, 0x413, 0x415, 0x443,
-   0x445, 0x46D, 0x481, 0x48B, 0x4C3
-};
-static const uint64_t poly_deg11[] = {
-    0x821, 0x829, 0x841, 0x853, 0x857,
-    0x859, 0x85F, 0x86B, 0x871, 0x883
-};
-static const uint64_t poly_deg12[] = {
-    0x1053, 0x1069, 0x106F, 0x108B,
-    0x10A1, 0x10AF, 0x10D1, 0x10DB, 0x10ED
-};
+
+static const uint64_t poly_deg1[] = { 0X3 };
+static const uint64_t poly_deg2[] = { 0X7 };
+static const uint64_t poly_deg3[] = { 0XB, 0XD };
+static const uint64_t poly_deg4[] = { 0X13, 0X19 };
+static const uint64_t poly_deg5[] = { 0X25, 0X29, 0X2F, 0X37, 0X3B, 0X3D };
+static const uint64_t poly_deg6[] = { 0X43, 0X5B, 0X61, 0X67, 0X6D, 0X73 };
+static const uint64_t poly_deg7[] = { 0X83, 0X89, 0X8F, 0X91, 0X9D, 0XA7, 0XAB, 0XB9, 0XBF, 0XC1, 0XCB, 0XD3, 0XD5, 0XE5, 0XEF, 0XF1, 0XF7, 0XFD };
+static const uint64_t poly_deg8[] = { 0X11D, 0X12B, 0X12D, 0X14D, 0X15F, 0X163, 0X165, 0X169, 0X171, 0X187, 0X18D, 0X1A9, 0X1C3, 0X1CF, 0X1E7, 0X1F5 };
+static const uint64_t poly_deg9[] = { 0X211, 0X21B, 0X221, 0X22D, 0X233, 0X259, 0X25F, 0X269, 0X26F, 0X277, 0X27D, 0X287, 0X295, 0X2A3, 0X2A5, 0X2AF, 0X2B7, 0X2BD, 0X2CF, 0X2D1, 0X2DB, 0X2F5, 0X2F9, 0X313, 0X315, 0X31F, 0X323, 0X331, 0X33B, 0X34F, 0X35B, 0X361, 0X36B, 0X36D, 0X373, 0X37F, 0X385, 0X38F, 0X3B5, 0X3B9, 0X3C7, 0X3CB, 0X3CD, 0X3D5, 0X3D9, 0X3E3, 0X3E9, 0X3FB };
+static const uint64_t poly_deg10[] = { 0X409, 0X41B, 0X427, 0X42D, 0X465, 0X46F, 0X481, 0X48B, 0X4C5, 0X4D7, 0X4E7, 0X4F3, 0X4FF, 0X50D, 0X519, 0X523, 0X531, 0X53D, 0X543, 0X557, 0X56B, 0X585, 0X58F, 0X597, 0X5A1, 0X5C7, 0X5E5, 0X5F7, 0X5FB, 0X613, 0X615, 0X625, 0X637, 0X643, 0X64F, 0X65B, 0X679, 0X67F, 0X689, 0X6B5, 0X6C1, 0X6D3, 0X6DF, 0X6FD, 0X717, 0X71D, 0X721, 0X739, 0X747, 0X74D, 0X755, 0X759, 0X763, 0X77D, 0X78D, 0X793, 0X7B1, 0X7DB, 0X7F3, 0X7F9 };
+static const uint64_t poly_deg11[] = { 0X805, 0X817, 0X82B, 0X82D, 0X847, 0X863, 0X865, 0X871, 0X87B, 0X88D, 0X895, 0X89F, 0X8A9, 0X8B1, 0X8CF, 0X8D1, 0X8E1, 0X8E7, 0X8EB, 0X8F5, 0X90D, 0X913, 0X925, 0X929, 0X93B, 0X93D, 0X945, 0X949, 0X951, 0X95B, 0X973, 0X975, 0X97F, 0X983, 0X98F, 0X9AB, 0X9AD, 0X9B9, 0X9C7, 0X9D9, 0X9E5, 0X9F7, 0XA01, 0XA07, 0XA13, 0XA15, 0XA29, 0XA49, 0XA61, 0XA6D, 0XA79, 0XA7F, 0XA85, 0XA91, 0XA9D, 0XAA7, 0XAAB, 0XAB3, 0XAB5, 0XAD5, 0XADF, 0XAE9, 0XAEF, 0XAF1, 0XAFB, 0XB03, 0XB09, 0XB11, 0XB33, 0XB3F, 0XB41, 0XB4B, 0XB59, 0XB5F, 0XB65, 0XB6F, 0XB7D, 0XB87, 0XB8B, 0XB93, 0XB95, 0XBAF, 0XBB7, 0XBBD, 0XBC9, 0XBDB, 0XBDD, 0XBE7, 0XBED, 0XC0B, 0XC0D, 0XC19, 0XC1F, 0XC57, 0XC61, 0XC6B, 0XC73, 0XC85, 0XC89, 0XC97, 0XC9B, 0XC9D, 0XCB3, 0XCBF, 0XCC7, 0XCCD, 0XCD3, 0XCD5, 0XCE3, 0XCE9, 0XCF7, 0XD03, 0XD0F, 0XD1D, 0XD27, 0XD2D, 0XD41, 0XD47, 0XD55, 0XD59, 0XD63, 0XD6F, 0XD71, 0XD93, 0XD9F, 0XDA9, 0XDBB, 0XDBD, 0XDC9, 0XDD7, 0XDDB, 0XDE1, 0XDE7, 0XDF5, 0XE05, 0XE1D, 0XE21, 0XE27, 0XE2B, 0XE33, 0XE39, 0XE47, 0XE4B, 0XE55, 0XE5F, 0XE71, 0XE7B, 0XE7D, 0XE81, 0XE93, 0XE9F, 0XEA3, 0XEBB, 0XECF, 0XEDD, 0XEF3, 0XEF9, 0XF0B, 0XF19, 0XF31, 0XF37, 0XF5D, 0XF6B, 0XF6D, 0XF75, 0XF83, 0XF91, 0XF97, 0XF9B, 0XFA7, 0XFAD, 0XFB5, 0XFCD, 0XFD3, 0XFE5, 0XFE9 };
+static const uint64_t poly_deg12[] = { 0X1053, 0X1069, 0X107B, 0X107D, 0X1099, 0X10D1, 0X10EB, 0X1107, 0X111F, 0X1123, 0X113B, 0X114F, 0X1157, 0X1161, 0X116B, 0X1185, 0X11B3, 0X11D9, 0X11DF, 0X120D, 0X1237, 0X123D, 0X1267, 0X1273, 0X127F, 0X12B9, 0X12C1, 0X12CB, 0X130F, 0X131D, 0X1321, 0X1339, 0X133F, 0X134D, 0X1371, 0X1399, 0X13A3, 0X13A9, 0X1407, 0X1431, 0X1437, 0X144F, 0X145D, 0X1467, 0X1475, 0X14A7, 0X14AD, 0X14D3, 0X150F, 0X151D, 0X154D, 0X1593, 0X15C5, 0X15D7, 0X15DD, 0X15EB, 0X1609, 0X1647, 0X1655, 0X1659, 0X16A5, 0X16BD, 0X1715, 0X1719, 0X1743, 0X1745, 0X1775, 0X1789, 0X17AD, 0X17B3, 0X17BF, 0X17C1, 0X1857, 0X185D, 0X1891, 0X1897, 0X18B9, 0X18EF, 0X191B, 0X1935, 0X1941, 0X1965, 0X197B, 0X198B, 0X19B1, 0X19BD, 0X19C9, 0X19CF, 0X19E7, 0X1A1B, 0X1A2B, 0X1A33, 0X1A69, 0X1A8B, 0X1AD1, 0X1AE1, 0X1AF5, 0X1B0B, 0X1B13, 0X1B1F, 0X1B57, 0X1B91, 0X1BA7, 0X1BBF, 0X1BC1, 0X1BD3, 0X1C05, 0X1C11, 0X1C17, 0X1C27, 0X1C4D, 0X1C87, 0X1C9F, 0X1CA5, 0X1CBB, 0X1CC5, 0X1CC9, 0X1CCF, 0X1CF3, 0X1D07, 0X1D23, 0X1D43, 0X1D51, 0X1D5B, 0X1D75, 0X1D85, 0X1D89, 0X1E15, 0X1E19, 0X1E2F, 0X1E45, 0X1E51, 0X1E67, 0X1E73, 0X1E8F, 0X1EE3, 0X1F11, 0X1F1B, 0X1F27, 0X1F71, 0X1F99, 0X1FBB, 0X1FBD, 0X1FC9 };
 
 /* Pointer table */
 static const uint64_t *primitive_poly[] = {
@@ -65,7 +59,7 @@ static const uint64_t *primitive_poly[] = {
 
 /* Count table */
 static const int primitive_poly_sizes[] = {
-    1,1,2,2,3,4,6,6,7,10,10,9
+    1,1,2,2,6,6,18,16,48,60,176,9
 };
 
 
@@ -262,8 +256,8 @@ int main() {
     printf("\n");
     correlationAttack(AttackingLFSR_Length,gef,T,N);
     
-
-
-
     return 0;
 }
+
+
+
