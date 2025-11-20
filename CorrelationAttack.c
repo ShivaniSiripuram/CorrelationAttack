@@ -267,26 +267,3 @@ int main() {
 
     return 0;
 }
-
-
-
-
-// def poly_from_hex(h):
-//     R.<x> = GF(2)[]       # polynomial ring over GF(2)
-//     h = int(h)
-//     poly = R(0)
-//     deg = h.bit_length() - 1
-//     for i in range(deg + 1):
-//         if (h >> i) & 1:
-//             poly += x^i
-//     return poly
-
-
-//     p = poly_from_hex(0x11D)
-// print(p)
-// def is_primitive_poly(poly):
-//     return poly.is_irreducible() and poly.is_primitive()
-
-
-//     p = poly_from_hex(0x11D)
-// print(p, "primitive =", is_primitive_poly(p))
