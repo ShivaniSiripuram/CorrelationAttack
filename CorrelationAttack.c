@@ -5,31 +5,33 @@
 
 typedef unsigned long long u64;
 
-static const double p=0.25;
+static const double p=0.25;// prob[sigma(t)!=st(t)]
 
-double phiInvPn=-4.0;
-double phiInvOneMinusPf=0.00000001 ; //sqrt(len)
-double calT(double N) {     //T = (1 − 2p) + 2(Φ^(−1)(Pn))*√ p(1 − p)N .
+double phiInvPn=0.8416212335729143;  //(Φ^(−1)(Pn))
+double phiInvOneMinusPf=8.209536151601387; //Φ^(−1)(1 − Pf) 
+
+
+double calT(double N){     //T = (1 − 2p) + 2(Φ^(−1)(Pn))*√ p(1 − p)N .
     double sp = sqrt((p * (1.0 - p))/N); 
-    return (1.0 - 2.0*p) + 2.0 * (phiInvPn) * (sp);
+    return (1.0 - (2.0*p)) + (2.0 * (phiInvPn) * (sp));
 }
 
 
-int calN(int l) {             //N=Φ−1(1 − Pf) − 2Φ−1(Pn)√p(1 − p)1 − 2p
-    float b = sqrt(p * (1 - p));
-    float a = (phiInvOneMinusPf - ((2 * (phiInvPn)) * b)) / (1 - (2 * p));
-    return (ceil(a * a));
+int calN(int l) {             //N=Φ−1^(-1)(1 − Pf) − 2Φ−1(Pn)√p(1 − p)1 − 2p
+    double x=(phiInvOneMinusPf-2*(phiInvPn*sqrt(p*(1-p))))/1-2*p;
+    return (x*x);
 }
 // double calT(int l,int N){
 //     return (sqrt(l)/sqrt(N));
-// }#include <math.h>
+// }
 
 double calC(int * geffeSeq,int* seq,int N){
-    float c=0.0;
+    double c=0.0;
     for(int i=0;i<N;i++){
-        c+=(seq[i]^geffeSeq[i]);
+        if(seq[i]!=geffeSeq[i])
+        c+=1;
     }
-    return 1.0 - (2.0 * c / N);
+    return 1.0 - ((2.0 / N)*c);
 }
 
 
@@ -59,7 +61,7 @@ static const uint64_t *primitive_poly[] = {
 
 /* Count table */
 static const int primitive_poly_sizes[] = {
-    1,1,2,2,6,6,18,16,48,60,176,9
+    1,1,2,2,6,6,18,16,48,60,176,144
 };
 
 
@@ -140,12 +142,12 @@ void correlationAttack(int len, int *Geffeseq, float T, int N)
 {
     int L = (1 << len) - 1;
 
-    /* initial state for the first generator */
+ 
     int initial_state[30];
     for (int i = 0; i < len; ++i)
         initial_state[i] = 1;
 
-    int seq[5000];      /* adjust if needed */
+    int seq[5000];    
     int taps[30];
 
     /* pick first primitive polynomial for this length */
@@ -180,8 +182,8 @@ void correlationAttack(int len, int *Geffeseq, float T, int N)
 
             c++;
 
-            float C = calC(seq2, Geffeseq, N);
-
+            double C = calC(seq2, Geffeseq, N);
+            //printf("C value : %lf\n",C);
             if (C > T) {
                 print_poly(polyy);
                 printf("\ninitial state is:\n");
@@ -199,16 +201,16 @@ void correlationAttack(int len, int *Geffeseq, float T, int N)
 
 int main() {
 
-    int AttackingLFSR_Length=3;
+    int AttackingLFSR_Length=6;
     int N=calN(AttackingLFSR_Length);//calN(p,AttackingLFSR_Length);
     double T=calT(N);//calT(AttackingLFSR_Length,N);
     printf("N : %d", N);
     printf(" T : %f\n",T);
     //lfsr1
-    int len1=3;
-    int initial_state1[]={1,0,1};//[s2,s1,s0]
+    int len1=6;
+    int initial_state1[]={0,0,1,0,0,1};//[s2,s1,s0]
     int no_of_taps1=2;
-    int feedback_poly1[]={1,2};//x^3 + x + 1
+    int feedback_poly1[]={1,2};
     int period1 = (1 << len1) - 1;
     int seq1[N];
     generateSequence(initial_state1, feedback_poly1, seq1, len1, no_of_taps1,N);
@@ -219,10 +221,10 @@ int main() {
     printf("\n");
 
     //lfsr2
-    int len2=4;
-    int initial_state2[]={1,1,0,1};//[s3,s2,s1,s0]
+    int len2=10;
+    int initial_state2[]={0,1,0,1,0,1,1,1,0,1};//[s3,s2,s1,s0]
     int no_of_taps2=2;
-    int feedback_poly2[]={1,2};// x^4 + x + 1
+    int feedback_poly2[]={1,4};
     int period2 = (1 << len2) - 1;
     int seq2[N];
     generateSequence(initial_state2, feedback_poly2, seq2, len2, no_of_taps2,N);
@@ -233,10 +235,10 @@ int main() {
     printf("\n");
 
     //lfsr-3
-    int len3=5;
-    int initial_state3[]={1,0,0,1,1};//[s4,s3,s2,s1,s0]
+    int len3=11;
+    int initial_state3[]={1,1,1,0,1,0,0,0,1,0,1};//[s4,s3,s2,s1,s0]
     int no_of_taps3=2;
-    int feedback_poly3[]={1,3};// x^5 + x^2 + 1
+    int feedback_poly3[]={1,3};
     int period3 = (1 << len3) - 1;
     int seq3[N];
     generateSequence(initial_state3, feedback_poly3, seq3, len3, no_of_taps3,N);
